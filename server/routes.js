@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Get all tasks
 router.get('/tasks', (req, res) => {
-  db.all('SELECT * FROM tasks ORDER BY section, completed, createdAt DESC', (err, rows) => {
+  db.all('SELECT * FROM tasks ORDER BY section, completed, createdat DESC', (err, rows) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -21,7 +21,7 @@ router.get('/tasks', (req, res) => {
 router.get('/tasks/section/:section', (req, res) => {
   const { section } = req.params;
   db.all(
-    'SELECT * FROM tasks WHERE section = ? ORDER BY completed, createdAt DESC',
+    'SELECT * FROM tasks WHERE section = ? ORDER BY completed, createdat DESC',
     [section],
     (err, rows) => {
       if (err) {
@@ -44,16 +44,16 @@ router.post('/tasks', (req, res) => {
   }
 
   const id = uuidv4();
-  const createdAt = new Date().toISOString();
+  const createdat = new Date().toISOString();
 
   db.run(
-    'INSERT INTO tasks (id, section, title, priority, createdAt, notes) VALUES (?, ?, ?, ?, ?, ?)',
-    [id, section, title, priority, createdAt, notes],
+    'INSERT INTO tasks (id, section, title, priority, createdat, notes) VALUES (?, ?, ?, ?, ?, ?)',
+    [id, section, title, priority, createdat, notes],
     (err) => {
       if (err) {
         return res.status(500).json({ error: err.message });
       }
-      res.status(201).json({ id, section, title, priority, completed: false, createdAt, notes });
+      res.status(201).json({ id, section, title, priority, completed: false, createdat, notes });
     }
   );
 });
@@ -61,7 +61,7 @@ router.post('/tasks', (req, res) => {
 // Update task
 router.patch('/tasks/:id', (req, res) => {
   const { id } = req.params;
-  const { completed, title, notes, priority, dayData } = req.body;
+  const { completed, title, notes, priority, daydata } = req.body;
 
   const updates = [];
   const values = [];
@@ -70,7 +70,7 @@ router.patch('/tasks/:id', (req, res) => {
     updates.push('completed = ?');
     values.push(completed ? 1 : 0);
     if (completed) {
-      updates.push('completedAt = ?');
+      updates.push('completedat = ?');
       values.push(new Date().toISOString());
     }
   }
@@ -90,9 +90,9 @@ router.patch('/tasks/:id', (req, res) => {
     values.push(priority);
   }
 
-  if (dayData !== undefined) {
-    updates.push('dayData = ?');
-    values.push(dayData);
+  if (daydata !== undefined) {
+    updates.push('daydata = ?');
+    values.push(daydata);
   }
 
   if (updates.length === 0) {

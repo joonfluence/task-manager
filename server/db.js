@@ -45,10 +45,10 @@ const db = {
         title TEXT NOT NULL,
         completed INTEGER DEFAULT 0,
         priority TEXT DEFAULT 'medium',
-        "createdAt" TEXT NOT NULL,
-        "completedAt" TEXT,
+        createdat TEXT NOT NULL,
+        completedat TEXT,
         notes TEXT,
-        "dayData" TEXT
+        daydata TEXT
       )
     `);
     console.log('Connected to PostgreSQL database');

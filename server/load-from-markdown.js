@@ -39,7 +39,7 @@ function loadFromMarkdown() {
         const createdAt = new Date().toISOString();
 
         db.run(
-          `INSERT INTO tasks (id, section, title, priority, completed, createdAt, dayData)
+          `INSERT INTO tasks (id, section, title, priority, completed, createdat, daydata)
            VALUES (?, ?, ?, ?, ?, ?, ?)`,
           [
             id,
