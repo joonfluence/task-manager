@@ -1,0 +1,32 @@
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const routes = require('./routes');
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Routes
+app.use('/api', routes);
+
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
+
+// Serve static files from client build
+const distPath = path.join(__dirname, '../client/dist');
+app.use(express.static(distPath));
+
+// SPA fallback - serve index.html for all non-API routes
+app.use((req, res) => {
+  res.sendFile(path.join(distPath, 'index.html'));
+});
+
+app.listen(PORT, () => {
+  console.log(`\n✅ Task Manager Server running at http://localhost:${PORT}\n`);
+});
