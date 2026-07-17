@@ -1,0 +1,14 @@
+{
+  "name": "task-manager",
+  "version": "1.0.0",
+  "description": "Obsidian 할 일 관리 서비스",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "cd server && node index.js",
+    "dev": "cd server && node index.js",
+    "build": "cd client && npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
