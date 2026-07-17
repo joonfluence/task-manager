@@ -8,12 +8,18 @@ const markdownPath = '/Users/yijun/Obsidian Vault/이번주_챌린지_틈틈히_
 
 function loadFromMarkdown() {
   try {
-    const tasks = parseMarkdownFile(markdownPath);
-    console.log(`\n📖 마크다운 파일에서 ${tasks.length}개의 항목을 찾았습니다.\n`);
+    // DB에 데이터가 있는지 확인
+    db.get('SELECT COUNT(*) as count FROM tasks', (err, row) => {
+      if (err || (row && row.count > 0)) {
+        console.log('✅ DB에 기존 데이터가 있습니다. 마크다운 로드 스킵합니다.\n');
+        return;
+      }
 
-    // 기존 데이터 삭제 (처음 로드 시만)
-    db.run('DELETE FROM tasks', () => {
-      // 새 데이터 삽입
+      // DB가 비어있을 때만 마크다운 로드
+      const tasks = parseMarkdownFile(markdownPath);
+      console.log(`\n📖 마크다운 파일에서 ${tasks.length}개의 항목을 로드합니다.\n`);
+
+      // 새 데이터 삽입 (기존 데이터 유지)
       let inserted = 0;
 
       tasks.forEach(task => {
