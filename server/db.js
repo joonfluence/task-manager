@@ -1,36 +1,60 @@
-const sqlite3 = require('sqlite3').verbose();
-const path = require('path');
+const { Pool } = require('pg');
 
-const dbPath = path.join(__dirname, 'tasks.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Database connection error:', err.message);
-  } else {
-    console.log('Connected to SQLite database at', dbPath);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+});
+
+pool.on('error', (err) => {
+  console.error('Unexpected error on idle client', err);
+});
+
+const db = {
+  run: (query, params = [], callback) => {
+    pool.query(query, params, (err, result) => {
+      if (typeof callback === 'function') {
+        callback(err);
+      }
+    });
+  },
+  get: (query, params = [], callback) => {
+    pool.query(query, params, (err, result) => {
+      if (typeof callback === 'function') {
+        const row = result && result.rows ? result.rows[0] : null;
+        callback(err, row);
+      }
+    });
+  },
+  all: (query, params = [], callback) => {
+    pool.query(query, params, (err, result) => {
+      if (typeof callback === 'function') {
+        const rows = result && result.rows ? result.rows : [];
+        callback(err, rows);
+      }
+    });
   }
-});
+};
 
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS tasks (
-      id TEXT PRIMARY KEY,
-      section TEXT NOT NULL,
-      title TEXT NOT NULL,
-      completed INTEGER DEFAULT 0,
-      priority TEXT DEFAULT 'medium',
-      createdAt TEXT NOT NULL,
-      completedAt TEXT,
-      notes TEXT,
-      dayData TEXT
-    )
-  `);
-
-  // 기존 테이블에 dayData 컬럼 추가 (이미 존재하면 무시)
-  db.run(`ALTER TABLE tasks ADD COLUMN dayData TEXT`, (err) => {
-    if (err && !err.message.includes('duplicate column')) {
-      console.log('dayData column added or already exists');
-    }
-  });
-});
+// 테이블 생성
+(async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS tasks (
+        id TEXT PRIMARY KEY,
+        section TEXT NOT NULL,
+        title TEXT NOT NULL,
+        completed INTEGER DEFAULT 0,
+        priority TEXT DEFAULT 'medium',
+        "createdAt" TEXT NOT NULL,
+        "completedAt" TEXT,
+        notes TEXT,
+        "dayData" TEXT
+      )
+    `);
+    console.log('Connected to PostgreSQL database');
+  } catch (err) {
+    console.error('Table creation error:', err.message);
+  }
+})();
 
 module.exports = db;

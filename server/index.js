@@ -5,7 +5,13 @@ const routes = require('./routes');
 const { loadFromMarkdown } = require('./load-from-markdown');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
+
+// Check DATABASE_URL in production
+if (process.env.NODE_ENV === 'production' && !process.env.DATABASE_URL) {
+  console.error('DATABASE_URL environment variable is required');
+  process.exit(1);
+}
 
 // Middleware
 app.use(cors());
