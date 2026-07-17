@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const routes = require('./routes');
+const { loadFromMarkdown } = require('./load-from-markdown');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -29,4 +30,9 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
   console.log(`\n✅ Task Manager Server running at http://localhost:${PORT}\n`);
+
+  // 마크다운 파일에서 데이터 로드
+  setTimeout(() => {
+    loadFromMarkdown();
+  }, 1000);
 });

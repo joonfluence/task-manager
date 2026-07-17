@@ -61,7 +61,7 @@ router.post('/tasks', (req, res) => {
 // Update task
 router.patch('/tasks/:id', (req, res) => {
   const { id } = req.params;
-  const { completed, title, notes, priority } = req.body;
+  const { completed, title, notes, priority, dayData } = req.body;
 
   const updates = [];
   const values = [];
@@ -88,6 +88,11 @@ router.patch('/tasks/:id', (req, res) => {
   if (priority !== undefined) {
     updates.push('priority = ?');
     values.push(priority);
+  }
+
+  if (dayData !== undefined) {
+    updates.push('dayData = ?');
+    values.push(dayData);
   }
 
   if (updates.length === 0) {

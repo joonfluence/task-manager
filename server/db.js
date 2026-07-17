@@ -20,9 +20,17 @@ db.serialize(() => {
       priority TEXT DEFAULT 'medium',
       createdAt TEXT NOT NULL,
       completedAt TEXT,
-      notes TEXT
+      notes TEXT,
+      dayData TEXT
     )
   `);
+
+  // 기존 테이블에 dayData 컬럼 추가 (이미 존재하면 무시)
+  db.run(`ALTER TABLE tasks ADD COLUMN dayData TEXT`, (err) => {
+    if (err && !err.message.includes('duplicate column')) {
+      console.log('dayData column added or already exists');
+    }
+  });
 });
 
 module.exports = db;

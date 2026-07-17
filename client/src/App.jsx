@@ -11,6 +11,69 @@ const SECTIONS = [
   { id: 'weekly', label: '🎬 주간 계획', color: '#06b6d4' }
 ];
 
+const DAYS = ['월', '화', '수', '목', '금', '토', '일'];
+
+function ChallengeItem({ task, onToggleDay, onToggleComplete, onDelete }) {
+  const dayData = task.dayData ? JSON.parse(task.dayData) : {};
+
+  return (
+    <div className="challenge-item">
+      <div className="challenge-title-section">
+        <input
+          type="checkbox"
+          checked={task.completed}
+          onChange={() => onToggleComplete(task.id, task.completed)}
+          className="task-checkbox"
+        />
+        <span className={`challenge-title ${task.completed ? 'completed' : ''}`}>
+          {task.title}
+        </span>
+        <button
+          onClick={() => onDelete(task.id)}
+          className="delete-button"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div className="day-selector">
+        {DAYS.map(day => (
+          <button
+            key={day}
+            className={`day-button ${dayData[day] ? 'active' : ''}`}
+            onClick={() => onToggleDay(task.id, day)}
+            title={`${day}요일`}
+          >
+            {day}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TaskItem({ task, onToggle, onDelete }) {
+  return (
+    <div className="task-item">
+      <input
+        type="checkbox"
+        checked={task.completed}
+        onChange={() => onToggle(task.id, task.completed)}
+        className="task-checkbox"
+      />
+      <span className={`task-title ${task.completed ? 'completed' : ''}`}>
+        {task.title}
+      </span>
+      <button
+        onClick={() => onDelete(task.id)}
+        className="delete-button"
+      >
+        ✕
+      </button>
+    </div>
+  );
+}
+
 function App() {
   const [tasks, setTasks] = useState([]);
   const [activeSection, setActiveSection] = useState('challenge');
@@ -18,7 +81,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({});
 
-  // Fetch all tasks
   useEffect(() => {
     fetchTasks();
     fetchStats();
@@ -74,6 +136,28 @@ function App() {
     }
   };
 
+  const handleToggleDay = async (taskId, day) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (!task) return;
+
+    const dayData = task.dayData ? JSON.parse(task.dayData) : {};
+    dayData[day] = !dayData[day];
+
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ dayData: JSON.stringify(dayData) })
+      });
+
+      if (response.ok) {
+        await fetchTasks();
+      }
+    } catch (error) {
+      console.error('Failed to update day:', error);
+    }
+  };
+
   const handleToggleTask = async (taskId, currentCompleted) => {
     try {
       const response = await fetch(`/api/tasks/${taskId}`, {
@@ -121,7 +205,7 @@ function App() {
       {/* Header */}
       <header className="header">
         <h1>📝 할 일 관리 서비스</h1>
-        <p className="subtitle">체계적인 계획 관리로 목표 달성하기</p>
+        <p className="subtitle">Obsidian 할 일 목록을 웹에서 관리하세요</p>
       </header>
 
       <div className="container">
@@ -176,25 +260,24 @@ function App() {
           <div className="task-list">
             {sectionTasks.length === 0 ? (
               <p className="empty-state">이 섹션에 할 일이 없습니다.</p>
+            ) : activeSection === 'challenge' ? (
+              sectionTasks.map(task => (
+                <ChallengeItem
+                  key={task.id}
+                  task={task}
+                  onToggleDay={handleToggleDay}
+                  onToggleComplete={handleToggleTask}
+                  onDelete={handleDeleteTask}
+                />
+              ))
             ) : (
               sectionTasks.map(task => (
-                <div key={task.id} className="task-item">
-                  <input
-                    type="checkbox"
-                    checked={task.completed}
-                    onChange={() => handleToggleTask(task.id, task.completed)}
-                    className="task-checkbox"
-                  />
-                  <span className={`task-title ${task.completed ? 'completed' : ''}`}>
-                    {task.title}
-                  </span>
-                  <button
-                    onClick={() => handleDeleteTask(task.id)}
-                    className="delete-button"
-                  >
-                    ✕
-                  </button>
-                </div>
+                <TaskItem
+                  key={task.id}
+                  task={task}
+                  onToggle={handleToggleTask}
+                  onDelete={handleDeleteTask}
+                />
               ))
             )}
           </div>
@@ -217,7 +300,7 @@ function App() {
 
       {/* Footer */}
       <footer className="footer">
-        <p>총 {tasks.length}개의 할 일 중 {tasks.filter(t => t.completed).length}개 완료</p>
+        <p>총 {tasks.length}개의 할 일 중 {tasks.filter(t => t.completed).length}개 완료 | 마지막 동기화: {new Date().toLocaleTimeString('ko-KR')}</p>
       </footer>
     </div>
   );

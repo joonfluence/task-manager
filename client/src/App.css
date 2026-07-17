@@ -166,11 +166,12 @@ body {
 .task-list {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 1rem;
   margin-bottom: 2rem;
   min-height: 50px;
 }
 
+/* Regular Task Item */
 .task-item {
   display: flex;
   align-items: center;
@@ -187,6 +188,73 @@ body {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
+/* Challenge Item */
+.challenge-item {
+  padding: 1rem;
+  background: var(--light);
+  border-radius: 8px;
+  border-left: 4px solid #3b82f6;
+  transition: all 0.2s;
+}
+
+.challenge-item:hover {
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.challenge-title-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.challenge-title {
+  flex: 1;
+  font-size: 1rem;
+  word-break: break-word;
+  font-weight: 500;
+}
+
+.challenge-title.completed {
+  text-decoration: line-through;
+  color: var(--text-light);
+}
+
+/* Day Selector */
+.day-selector {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding-left: 2rem;
+}
+
+.day-button {
+  width: 40px;
+  height: 40px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--text);
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.day-button:hover {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.day-button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Checkbox & Title */
 .task-checkbox {
   width: 20px;
   height: 20px;
@@ -215,6 +283,7 @@ body {
   font-size: 1.2rem;
   border-radius: 4px;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
 
 .delete-button:hover {
@@ -280,6 +349,7 @@ body {
   color: var(--text-light);
   border-top: 1px solid var(--border);
   background: var(--light);
+  font-size: 0.9rem;
 }
 
 /* Loading */
@@ -337,5 +407,15 @@ body {
 
   .add-task-form {
     flex-direction: column;
+  }
+
+  .day-selector {
+    padding-left: 1rem;
+  }
+
+  .day-button {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8rem;
   }
 }
